@@ -5,8 +5,6 @@
 import enum
 from datetime import datetime
 
-import .load_working_log
-
 class enum_worktime(enum.Enum):
     """ Entry type
     """
@@ -39,4 +37,3 @@ class worktime:
         if not err:
             print("All is fine")
             return True
-

@@ -37,3 +37,12 @@ class worktime:
         if not err:
             print("All is fine")
             return True
+
+class list:
+    def __init__(self):
+        self.list = []
+    def append(self, date_time, wtype):
+        self.list.append(worktime(date_time, wtype))
+    def output(self):
+        for e in self.list:
+            e.view()

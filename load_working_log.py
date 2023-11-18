@@ -4,6 +4,8 @@
 
 from datetime import datetime
 
+import worktime
+
 class dataset:
     def __init__(self, date_time, place, subject, comment):
         self.date_time = date_time
@@ -67,3 +69,24 @@ class raw_list:
     def output(self):
         for d in self.list:
             d.show()
+
+def convert_raw_to_worktime(raw_list):
+    start = False
+    pause = False
+    working_time_list = worktime.list()
+
+    for entry in raw_list.list:
+        if not start and not pause and not entry.is_end() and not entry.is_pause():
+            start = True
+            working_time_list.append(entry.date_time, worktime.enum_worktime.start_of_work)
+        if start and not pause and entry.is_pause():
+            pause = True
+            working_time_list.append(entry.date_time, worktime.enum_worktime.start_of_work_break)
+        if start and pause and not entry.is_end() and not entry.is_pause():
+            pause = False
+            working_time_list.append(entry.date_time, worktime.enum_worktime.end_of_work_break)
+        if start and not pause and entry.is_end():
+            start = False
+            working_time_list.append(entry.date_time, worktime.enum_worktime.end_of_work)
+
+    return working_time_list

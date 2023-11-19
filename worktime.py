@@ -38,6 +38,18 @@ class worktime:
         if not err:
             print("All is fine")
             return True
+    def is_start_of_work(self):
+        return self.wtype == enum_worktime.start_of_work
+    def is_start_of_work_break(self):
+        return self.wtype == enum_worktime.start_of_work_break
+    def is_end_of_work_break(self):
+        return self.wtype == enum_worktime.end_of_work_break
+    def is_end_of_work(self):
+        return self.wtype == enum_worktime.end_of_work
+    def is_working_hours_start(self):
+        return self.is_start_of_work() or self.is_end_of_work_break()
+    def is_working_hours_end(self):
+        return self.is_start_of_work_break() or self.is_end_of_work()
 
 class list:
     def __init__(self):
@@ -52,10 +64,6 @@ class list:
         line = {"date" : "", "times" : [], "hours" : datetime.timedelta(minutes=0)}
 
         for stamp in self.list:
-            start = (   stamp.wtype == enum_worktime.start_of_work or
-                        stamp.wtype == enum_worktime.end_of_work_break)
-            end = ( stamp.wtype == enum_worktime.end_of_work or
-                    stamp.wtype == enum_worktime.start_of_work_break)
             date_str_tmp = stamp.date_time.strftime("%a, %d. %b. %Y")
             time = stamp.date_time
             # Auf viertel Stunde runden
@@ -63,19 +71,19 @@ class list:
             time += datetime.timedelta(seconds=sec)
             time_str = time.strftime("%H:%M")
 
-            if date_str and start and date_str != date_str_tmp:
+            if date_str and stamp.is_working_hours_start() and date_str != date_str_tmp:
                 line["hours"] = "{}".format(line["hours"].seconds / 3600)
                 print(line)
                 line["times"] = []
                 line["hours"] = datetime.timedelta(minutes=0)
 
-            if start:
+            if stamp.is_working_hours_start():
                 line["date"] = date_str_tmp
                 date_str = date_str_tmp
                 time_start = time
             elif not date_str:
                 continue
-            if end:
+            if stamp.is_working_hours_end():
                 line["hours"] += time - time_start
 
             line["times"].append(time_str)

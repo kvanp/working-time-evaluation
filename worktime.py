@@ -3,7 +3,7 @@
 """
 
 import enum
-from datetime import datetime
+import datetime
 
 class enum_worktime(enum.Enum):
     """ Entry type
@@ -24,7 +24,7 @@ class worktime:
         print("At {} is {}".format(self.date_time, self.wtype))
     def check(self):
         err = {}
-        if not isinstance(self.date_time, datetime):
+        if not isinstance(self.date_time, datetime.datetime):
             err["Start"] = 'datetime.datetime'
         if not isinstance(self.wtype, enum_worktime):
             err["Type"]  = 'enum_worktime'
@@ -46,3 +46,37 @@ class list:
     def output(self):
         for e in self.list:
             e.view()
+    def days(self):
+        date_str = ""
+        line = {"date" : "", "times" : [], "hours" : datetime.timedelta(minutes=0)}
+
+        for stamp in self.list:
+            start = (   stamp.wtype == enum_worktime.start_of_work or
+                        stamp.wtype == enum_worktime.end_of_work_break)
+            end = ( stamp.wtype == enum_worktime.end_of_work or
+                    stamp.wtype == enum_worktime.start_of_work_break)
+            date_str_tmp = stamp.date_time.strftime("%a, %d. %b. %Y")
+            time = stamp.date_time
+            # Auf viertel Stunde runden
+            sec = (((time.minute + 7) * 4 // 60) * 15 - time.minute) * 60
+            time += datetime.timedelta(seconds=sec)
+            time_str = time.strftime("%H:%M")
+
+            if date_str and start and date_str != date_str_tmp:
+                line["hours"] = "{}".format(line["hours"].seconds / 3600)
+                print(line)
+                line["times"] = []
+                line["hours"] = datetime.timedelta(minutes=0)
+
+            if start:
+                line["date"] = date_str_tmp
+                date_str = date_str_tmp
+                time_start = time
+            elif not date_str:
+                continue
+            if end:
+                line["hours"] += time - time_start
+
+            line["times"].append(time_str)
+
+        print(line)

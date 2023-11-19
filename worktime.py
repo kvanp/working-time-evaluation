@@ -50,6 +50,9 @@ class worktime:
         return self.is_start_of_work() or self.is_end_of_work_break()
     def is_working_hours_end(self):
         return self.is_start_of_work_break() or self.is_end_of_work()
+    def time_rounded_quater_hour(self):
+        sec = utils.round_int_uni_difference(self.date_time.minute, 60, 15) * 60
+        return self.date_time + datetime.timedelta(seconds=sec)
 
 class list:
     def __init__(self):
@@ -66,10 +69,7 @@ class list:
 
         for stamp in self.list:
             date_str_tmp = stamp.date_time.strftime("%a, %d. %b. %Y")
-            time = stamp.date_time
-            # Auf viertel Stunde runden
-            sec = utils.round_int_uni_difference(time.minute, 60, 15) * 60
-            time += datetime.timedelta(seconds=sec)
+            time = stamp.time_rounded_quater_hour()
             time_str = time.strftime("%H:%M")
 
             if date_str and stamp.is_working_hours_start() and date_str != date_str_tmp:

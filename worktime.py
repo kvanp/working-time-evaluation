@@ -21,6 +21,8 @@ class worktime:
     def __init__(self, date_time, wtype):
         self.date_time = date_time
         self.wtype = wtype
+    def __lt__(self, other):
+        return self.date_time < other.date_time
     def view(self):
         print("At {} is {}".format(self.date_time, self.wtype))
     def check(self):
@@ -59,6 +61,7 @@ class list:
         self.list = []
     def append(self, date_time, wtype):
         self.list.append(worktime(date_time, wtype))
+        self.list.sort()
     def output(self):
         for e in self.list:
             e.view()

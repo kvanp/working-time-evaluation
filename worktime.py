@@ -4,6 +4,7 @@
 
 import enum
 import datetime
+import utils
 
 class enum_worktime(enum.Enum):
     """ Entry type
@@ -58,7 +59,7 @@ class list:
             date_str_tmp = stamp.date_time.strftime("%a, %d. %b. %Y")
             time = stamp.date_time
             # Auf viertel Stunde runden
-            sec = (((time.minute + 7) * 4 // 60) * 15 - time.minute) * 60
+            sec = utils.round_int_uni_difference(time.minute, 60, 15) * 60
             time += datetime.timedelta(seconds=sec)
             time_str = time.strftime("%H:%M")
 

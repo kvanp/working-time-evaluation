@@ -62,6 +62,7 @@ class list:
     def days(self):
         date_str = ""
         line = {"date" : "", "times" : [], "hours" : datetime.timedelta(minutes=0)}
+        hours = datetime.timedelta(hours=0)
 
         for stamp in self.list:
             date_str_tmp = stamp.date_time.strftime("%a, %d. %b. %Y")
@@ -72,10 +73,10 @@ class list:
             time_str = time.strftime("%H:%M")
 
             if date_str and stamp.is_working_hours_start() and date_str != date_str_tmp:
-                line["hours"] = "{}".format(line["hours"].seconds / 3600)
+                line["hours"] = "{}".format(hours.seconds / 3600)
                 print(line)
                 line["times"] = []
-                line["hours"] = datetime.timedelta(minutes=0)
+                hours = datetime.timedelta(hours=0)
 
             if stamp.is_working_hours_start():
                 line["date"] = date_str_tmp
@@ -84,8 +85,11 @@ class list:
             elif not date_str:
                 continue
             if stamp.is_working_hours_end():
-                line["hours"] += time - time_start
+                hours += time - time_start
 
             line["times"].append(time_str)
+
+        if hours != datetime.timedelta(hours=0):
+            line["hours"] = "{}".format(hours.seconds / 3600)
 
         print(line)

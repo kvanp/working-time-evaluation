@@ -14,6 +14,8 @@ class enum_stamp_type(enum.Enum):
     start_of_work_break = enum.auto()
     end_of_work_break   = enum.auto()
     end_of_work         = enum.auto()
+    def __lt__(self, other):
+        return self.value < other.value
 
 class stamp_time:
     def __init__(self, time, stype):
@@ -131,9 +133,12 @@ class list:
                 e.append(date_time.time(), stype)
                 break
         else:
-            tmp = stamp_hours(date_time.date())
-            tmp.append(date_time.time(), stype)
-            self.list.append(tmp)
+            if stype == enum_stamp_type.start_of_work_break or stype == enum_stamp_type.end_of_work:
+                self.append(date_time - datetime.timedelta(days=1), stype)
+            else:
+                tmp = stamp_hours(date_time.date())
+                tmp.append(date_time.time(), stype)
+                self.list.append(tmp)
     def output(self):
         for e in self.list:
             print(e, "| {}".format(e.get_hours_in(datetime.time(18,0,0), datetime.time(0,0,0))))

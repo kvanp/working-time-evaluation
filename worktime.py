@@ -52,7 +52,7 @@ class stamp_time:
             return False
         return self.time < other.time
     def __str__(self):
-        return "{} {}".format(self.time.strftime("%H:%M"), str(self.stamp_type))
+        return self.rounded_quater_hour().strftime("%H:%M")
 
 class stamp_times:
     def __init__(self):
@@ -60,6 +60,33 @@ class stamp_times:
     def append(self, time, stype):
         self.times.append(stamp_time(time,stype))
         self.times.sort()
+    def get_hours_in(self, start, end):
+        last = 0
+        hours = 0
+        start = start.hour * 60 + start.minute
+        end = end.hour * 60 + end.minute
+
+        if end < start:
+            end += 24 * 60
+
+        for t in self.times:
+            cur = t.get_minute_rouded()
+            if last and t.is_working_hours_end():
+                if cur < last:
+                    cur += 24 * 60
+
+                if cur < start or last > end:
+                    continue
+                elif last < start:
+                    last = start
+                elif cur > end:
+                    cur = end
+
+                hours += cur - last
+                last = 0
+            elif t.is_working_hours_start():
+                last = cur
+        return datetime.time(hours // 60, hours % 60)
     def get_hours(self):
         last = 0
         hours = 0
@@ -78,7 +105,7 @@ class stamp_times:
         string = []
         for t in self.times:
             string += [str(t)]
-        return ';'.join(string)
+        return "{:82}".format('; '.join(string))
 
 class stamp_day(stamp_times):
     def __init__(self, date):
@@ -109,6 +136,6 @@ class list:
             self.list.append(tmp)
     def output(self):
         for e in self.list:
-            print(e)
+            print(e, "| {}".format(e.get_hours_in(datetime.time(18,0,0), datetime.time(0,0,0))))
     def days(self):
         self.output()

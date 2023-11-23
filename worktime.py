@@ -65,10 +65,12 @@ class stamp_times:
     def get_hours_in(self, start, end):
         last = 0
         hours = 0
+        early_end = -1
         start = start.hour * 60 + start.minute
         end = end.hour * 60 + end.minute
 
         if end < start:
+            early_end = end
             end += 24 * 60
 
         for t in self.times:
@@ -77,9 +79,21 @@ class stamp_times:
                 if cur < last:
                     cur += 24 * 60
 
-                if cur < start or last > end:
+                if cur < start and last > early_end or last > end:
+                    last = 0
                     continue
-                elif last < start:
+
+                if last < early_end:
+                    if cur < early_end:
+                        hours += cur - last
+                    else:
+                        hours += early_end - last
+
+                    if cur < start:
+                        last = 0
+                        continue
+
+                if last < start:
                     last = start
                 elif cur > end:
                     cur = end

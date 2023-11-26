@@ -5,6 +5,7 @@
 import enum
 import datetime
 import utils
+import cal
 
 class enum_stamp_type(enum.Enum):
     """ Entry type
@@ -138,6 +139,9 @@ class stamp_day(stamp_times):
     def __init__(self, date):
         super().__init__()
         self.date = date
+        self.sunnday = date.weekday() == 6
+        calender = cal.holiday(date.year)
+        self.holiday = calender.is_holiday(date)
     def __lt__(self, other):
         return self.date < other.date
     def __str__(self):

@@ -64,14 +64,17 @@ class stamp_times:
         self.times.sort()
     def get_hours_in(self, start, end):
         last = 0
+        h_morning = 0
         hours = 0
+        h_next_day = 0
         early_end = -1
+        midnight = 24 * 60
         start = start.hour * 60 + start.minute
         end = end.hour * 60 + end.minute
 
         if end < start:
             early_end = end
-            end += 24 * 60
+            end += midnight
 
         for t in self.times:
             cur = t.get_minute_rouded()
@@ -86,12 +89,17 @@ class stamp_times:
                 if last < early_end:
                     if cur < early_end:
                         hours += cur - last
+                        h_morning += cur - last
                     else:
                         hours += early_end - last
+                        h_morning += early_end - last
 
                     if cur < start:
                         last = 0
                         continue
+
+                if cur > midnight:
+                    h_next_day += cur - midnight
 
                 if last < start:
                     last = start
@@ -102,7 +110,10 @@ class stamp_times:
                 last = 0
             elif t.is_working_hours_start():
                 last = cur
-        return datetime.time(hours // 60, hours % 60)
+        return { "hours" : hours / 60,
+                    "in morning" : h_morning / 60,
+                    "on next day" : h_next_day / 60}
+
     def get_hours(self):
         last = 0
         hours = 0
@@ -116,7 +127,7 @@ class stamp_times:
                 last = 0
             elif t.is_working_hours_start():
                 last = cur
-        return datetime.time(hours // 60, hours % 60)
+        return hours / 60
     def __str__(self):
         string = []
         for t in self.times:
@@ -155,6 +166,6 @@ class list:
                 self.list.append(tmp)
     def output(self):
         for e in self.list:
-            print(e, "| {}".format(e.get_hours_in(datetime.time(18,0,0), datetime.time(0,0,0))))
+            print(e, "| {}".format(e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))))
     def days(self):
         self.output()

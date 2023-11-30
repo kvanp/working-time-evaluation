@@ -75,7 +75,7 @@ class stamp_times:
         start = start.hour * 60 + start.minute
         end = end.hour * 60 + end.minute
 
-        if end < start:
+        if end <= start:
             early_end = end
             end += midnight
 
@@ -176,8 +176,31 @@ class list:
                 tmp.append(date_time.time(), stype)
                 self.list.append(tmp)
     def output(self):
+        evening_data = self.list[0].get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
+        day_data     = self.list[0].get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
+        night_data   = self.list[0].get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
+        last_date    = self.list[0].date
         for e in self.list:
-            h_in = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
-            print(e, "| ({:5.2f}; {:5.2f}; {:5.2f})".format(h_in["hours"], h_in["in morning"], h_in["on next day"]), "S {:5}".format(str(e.sunday)), "F {:5}".format(str(e.holiday)))
+            sun_holiday = 0
+            if (e.date - last_date).days == 1:
+                day     =     day_data["on next day"]
+                evening = evening_data["on next day"]
+                night   =   night_data["hours"] - night_data["in morning"]
+            else:
+                evening = 0
+                day     = 0
+                night   = 0
+            day_data     = e.get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
+            evening_data = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
+            night_data   = e.get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
+            day     +=     day_data["hours"]
+            evening += evening_data["hours"]
+            night   +=   night_data["in morning"]
+            if night < 2:
+                night = 0
+            if e.sunday or e.holiday:
+                sun_holiday = day
+            print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(evening, night, sun_holiday))
+            last_date = e.date
     def days(self):
         self.output()

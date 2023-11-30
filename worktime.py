@@ -116,7 +116,6 @@ class stamp_times:
         return { "hours" : hours / 60,
                     "in morning" : h_morning / 60,
                     "on next day" : h_next_day / 60}
-
     def get_hours(self):
         last = -1
         hours = 0
@@ -132,10 +131,16 @@ class stamp_times:
                 last = cur
         return hours / 60
     def __str__(self):
-        string = []
-        for t in self.times:
-            string += [str(t)]
-        return "{:82}".format('; '.join(string))
+        string = ""
+        times = self.times[::-1]
+        while times:
+            if len(times) == 2:
+                string += "{}       -       {}".format(times.pop(), times.pop())
+            elif len(times) >= 4:
+                string += "{}-{} / {}-{}".format(times.pop(), times.pop(), times.pop(), times.pop())
+                if times:
+                    string += "\n                    "
+        return string
 
 class stamp_day(stamp_times):
     def __init__(self, date):

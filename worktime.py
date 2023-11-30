@@ -139,7 +139,7 @@ class stamp_day(stamp_times):
     def __init__(self, date):
         super().__init__()
         self.date = date
-        self.sunnday = date.weekday() == 6
+        self.sunday = date.weekday() == 6
         calender = cal.holiday(date.year)
         self.holiday = calender.is_holiday(date)
     def __lt__(self, other):
@@ -170,6 +170,6 @@ class list:
                 self.list.append(tmp)
     def output(self):
         for e in self.list:
-            print(e, "| {}".format(e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))))
+            print(e, "| {}".format(e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))), "S {:5}".format(str(e.sunday)), "F {:5}".format(str(e.holiday)))
     def days(self):
         self.output()

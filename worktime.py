@@ -24,9 +24,11 @@ class stamp_time:
         self.stamp_type = stype
     def get_minute(self):
         return self.time.hour * 60 + self.time.minute
-    def get_minute_rouded(self, part=15):
+    def get_minute_rounded(self, part=15):
         minute = self.time.hour * 60 + self.time.minute
         return utils.round_int_uni(minute, 60, part)
+    def get_hour_rounded(self, part=15):
+        return self.get_minute_rounded(part) / 60
     def rounded_quater_hour(self):
         hour = self.time.hour
         minute = utils.round_int_uni(self.time.minute, 60, 15)
@@ -78,7 +80,7 @@ class stamp_times:
             end += midnight
 
         for t in self.times:
-            cur = t.get_minute_rouded()
+            cur = t.get_minute_rounded()
             if last and t.is_working_hours_end():
                 if cur < last:
                     cur += 24 * 60
@@ -120,7 +122,7 @@ class stamp_times:
         hours = 0
 
         for t in self.times:
-            cur = t.get_minute_rouded()
+            cur = t.get_minute_rounded()
             if last >= 0 and t.is_working_hours_end():
                 if cur < last:
                     cur += 24 * 60

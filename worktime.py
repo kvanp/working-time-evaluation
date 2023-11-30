@@ -116,16 +116,16 @@ class stamp_times:
                     "on next day" : h_next_day / 60}
 
     def get_hours(self):
-        last = 0
+        last = -1
         hours = 0
 
         for t in self.times:
             cur = t.get_minute_rouded()
-            if last and t.is_working_hours_end():
+            if last >= 0 and t.is_working_hours_end():
                 if cur < last:
                     cur += 24 * 60
                 hours += cur - last
-                last = 0
+                last = -1
             elif t.is_working_hours_start():
                 last = cur
         return hours / 60

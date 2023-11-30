@@ -151,7 +151,7 @@ class stamp_hours(stamp_day):
     def __init__(self, date):
         super().__init__(date)
     def __str__(self):
-        return "{}: {}".format(super().__str__(), self.get_hours())
+        return "{}: {:5.2f}".format(super().__str__(), self.get_hours())
 
 class list:
     def __init__(self):
@@ -170,6 +170,7 @@ class list:
                 self.list.append(tmp)
     def output(self):
         for e in self.list:
-            print(e, "| {}".format(e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))), "S {:5}".format(str(e.sunday)), "F {:5}".format(str(e.holiday)))
+            h_in = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
+            print(e, "| ({:5.2f}; {:5.2f}; {:5.2f})".format(h_in["hours"], h_in["in morning"], h_in["on next day"]), "S {:5}".format(str(e.sunday)), "F {:5}".format(str(e.holiday)))
     def days(self):
         self.output()

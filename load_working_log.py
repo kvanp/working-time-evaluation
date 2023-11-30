@@ -79,18 +79,14 @@ def convert_raw_to_worktime(raw_list):
         if not start and not pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
             start = True
             working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work)
-            continue
-        if start and not pause and entry.is_pause():
+        elif start and not pause and entry.is_pause():
             pause = True
             working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work_break)
-            continue
-        if start and pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
+        elif start and pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
             pause = False
             working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work_break)
-            continue
-        if start and not pause and entry.is_end():
+        elif start and not pause and entry.is_end():
             start = False
             working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work)
-            continue
 
     return working_time_list

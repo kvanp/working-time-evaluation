@@ -9,3 +9,4 @@ filename = "Arbeitsprotokoll.log"
 data = load_working_log.raw_list(filename)
 workdata = load_working_log.convert_raw_to_worktime(data)
 workdata.days()
+workdata.csv()

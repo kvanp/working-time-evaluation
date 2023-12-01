@@ -130,6 +130,17 @@ class stamp_times:
             elif t.is_working_hours_start():
                 last = cur
         return hours / 60
+    def times_csv(self, sep=";"):
+        string = ""
+        times = self.times[::-1]
+        while times:
+            if len(times) == 2:
+                string += "{}{s}{s}{s}{s}{}".format(times.pop(), times.pop(), s=sep)
+            elif len(times) >= 4:
+                string += "{}{s}{}{s}/{s}{}{s}{}".format(times.pop(), times.pop(), times.pop(), times.pop(), s=sep)
+                if times:
+                    string += "\n;"
+        return string
     def __str__(self):
         string = ""
         times = self.times[::-1]
@@ -229,5 +240,20 @@ class list:
                 sum_nigth       += e.night
                 sum_sun_holiday += e.sun_holiday
         print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
+    def csv(self, all_=False, month=10, year=datetime.datetime.now().year, sep=";"):
+        self.calc_hours()
+        sum_hours       = 0
+        sum_evening     = 0
+        sum_nigth       = 0
+        sum_sun_holiday = 0
+
+        for e in self.list:
+            if all_ or e.date.year == year and e.date.month == month:
+                print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(A {:5.2f}| N {:5.2f}| S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday)]))
+                sum_hours       += e.hours
+                sum_evening     += e.evening
+                sum_nigth       += e.night
+                sum_sun_holiday += e.sun_holiday
+        print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
     def days(self):
         self.output()

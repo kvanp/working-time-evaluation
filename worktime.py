@@ -157,6 +157,10 @@ class stamp_day(stamp_times):
 class stamp_hours(stamp_day):
     def __init__(self, date):
         super().__init__(date)
+        self.hours       = 0
+        self.evening     = 0
+        self.night       = 0
+        self.sun_holiday = 0
     def __str__(self):
         return "{}: {:5.2f}".format(super().__str__(), self.get_hours())
 
@@ -175,17 +179,15 @@ class list:
                 tmp = stamp_hours(date_time.date())
                 tmp.append(date_time.time(), stype)
                 self.list.append(tmp)
-    def output(self, all_=False, month=10, year=datetime.datetime.now().year):
+    def calc_hours(self):
         evening_data = self.list[0].get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
         day_data     = self.list[0].get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
         night_data   = self.list[0].get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
         last_date    = self.list[0].date
-        sum_hours       = 0
-        sum_evening     = 0
-        sum_nigth       = 0
-        sum_sun_holiday = 0
+
         for e in self.list:
             sun_holiday = 0
+
             if (e.date - last_date).days == 1:
                 day     =     day_data["on next day"]
                 evening = evening_data["on next day"]
@@ -194,23 +196,38 @@ class list:
                 evening = 0
                 day     = 0
                 night   = 0
+
             day_data     = e.get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
             evening_data = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
             night_data   = e.get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
             day     +=     day_data["hours"]
             evening += evening_data["hours"]
             night   +=   night_data["in morning"]
+
             if night < 2:
                 night = 0
             if e.sunday or e.holiday:
                 sun_holiday = day
-            if all_ or e.date.year == year and e.date.month == month:
-                print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(evening, night, sun_holiday))
-                sum_hours       += e.get_hours()
-                sum_evening     += evening
-                sum_nigth       += night
-                sum_sun_holiday += sun_holiday
+
             last_date = e.date
+            e.hours       = e.get_hours()
+            e.evening     = evening
+            e.night       = night
+            e.sun_holiday = sun_holiday
+    def output(self, all_=False, month=10, year=datetime.datetime.now().year):
+        self.calc_hours()
+        sum_hours       = 0
+        sum_evening     = 0
+        sum_nigth       = 0
+        sum_sun_holiday = 0
+
+        for e in self.list:
+            if all_ or e.date.year == year and e.date.month == month:
+                print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday))
+                sum_hours       += e.hours
+                sum_evening     += e.evening
+                sum_nigth       += e.night
+                sum_sun_holiday += e.sun_holiday
         print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
     def days(self):
         self.output()

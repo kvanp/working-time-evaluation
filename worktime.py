@@ -225,35 +225,41 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
-    def output(self, all_=False, month=10, year=datetime.datetime.now().year):
+    def output(self, month=-1, year=None):
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0
         sum_nigth       = 0
         sum_sun_holiday = 0
 
+        if year == None:
+            year = datetime.datetime.now().year
+
         for e in self.list:
-            if all_ or e.date.year == year and e.date.month == month:
+            if month == -1 or e.date.year == year and e.date.month == month:
                 print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night
                 sum_sun_holiday += e.sun_holiday
         print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
-    def csv(self, all_=False, month=10, year=datetime.datetime.now().year, sep=";"):
+    def csv(self, month=-1, year=None, sep=";"):
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0
         sum_nigth       = 0
         sum_sun_holiday = 0
 
+        if year == None:
+            year = datetime.datetime.now().year
+
         for e in self.list:
-            if all_ or e.date.year == year and e.date.month == month:
+            if month == -1 or e.date.year == year and e.date.month == month:
                 print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(A {:5.2f}| N {:5.2f}| S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday)]))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night
                 sum_sun_holiday += e.sun_holiday
         print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
-    def days(self):
-        self.output()
+    def days(self, m, y):
+        self.output(m, y)

@@ -1,5 +1,5 @@
-""" Working time stamp entry
-    start date time, end date time, entry type
+"""Working time stamp entry
+start date time, end date time, entry type
 """
 
 import enum
@@ -8,8 +8,7 @@ import utils
 import cal
 
 class enum_stamp_type(enum.Enum):
-    """ Entry type
-    """
+    """Enum of Entry types"""
     none_of_work        = enum.auto()
     start_of_work       = enum.auto()
     start_of_work_break = enum.auto()
@@ -19,17 +18,42 @@ class enum_stamp_type(enum.Enum):
         return self.value < other.value
 
 class stamp_time:
+    """Single stamp time with type"""
     def __init__(self, time, stype):
+        """
+        Arguments:
+        time  -- the time as a `datetime.time` object
+        stype -- the type of the time as `enum_stamp_type`
+        """
         self.time = time
         self.stamp_type = stype
     def get_minute(self):
+        """Get the time in minutes
+        Return: minutes
+        """
         return self.time.hour * 60 + self.time.minute
     def get_minute_rounded(self, part=15):
+        """Get the time in minutes and rounded
+        Arguments:
+        part -- step with for the rounding in minutes (default 15)
+
+        Return: minutes
+        """
         minute = self.time.hour * 60 + self.time.minute
         return utils.round_int_uni(minute, 60, part)
     def get_hour_rounded(self, part=15):
+        """Get the time in hours and rounded
+        Arguments:
+        part -- step with for the rounding in minutes (default 15)
+
+        Return: hours
+        """
         return self.get_minute_rounded(part) / 60
     def rounded_quater_hour(self):
+        """Get the time in minutes and rounded to 15 minutes
+
+        Return: minutes
+        """
         hour = self.time.hour
         minute = utils.round_int_uni(self.time.minute, 60, 15)
         if minute >= 60:
@@ -41,16 +65,22 @@ class stamp_time:
         #sec = utils.round_int_uni_difference(self.time.minute, 60, 15) * 60
         #return self.time + datetime.timedelta(seconds=sec)
     def is_start_of_work(self):
+        """Is true if the time is start of working"""
         return self.stamp_type == enum_stamp_type.start_of_work
     def is_start_of_work_break(self):
+        """Is true if the time is start pause"""
         return self.stamp_type == enum_stamp_type.start_of_work_break
     def is_end_of_work_break(self):
+        """Is true if the time is end of pause"""
         return self.stamp_type == enum_stamp_type.end_of_work_break
     def is_end_of_work(self):
+        """Is true if the time is end of working"""
         return self.stamp_type == enum_stamp_type.end_of_work
     def is_working_hours_start(self):
+        """Is true if the time is start of working"""
         return self.is_start_of_work() or self.is_end_of_work_break()
     def is_working_hours_end(self):
+        """Is true if the time is end of working"""
         return self.is_start_of_work_break() or self.is_end_of_work()
     def __lt__(self, other):
         if self.time < other.time and self.stamp_type > other.stamp_type:
@@ -60,12 +90,24 @@ class stamp_time:
         return self.rounded_quater_hour().strftime("%H:%M")
 
 class stamp_times:
+    """List of time stamps as `stamp_time`"""
     def __init__(self):
         self.times = []
     def append(self, time, stype):
+        """Add a time to the list
+        Arguments:
+        time  -- the time as `datetime.time`
+        stype -- the type of the time as `enum_stamp_type`
+        """
         self.times.append(stamp_time(time,stype))
         self.times.sort()
     def get_hours_in(self, start, end):
+        """Get the hours where between start and end
+        Argumnets:
+        start -- the start time as `datetime.time`
+        start -- the end time as `datetime.time`
+        Return: hours
+        """
         last = 0
         h_morning = 0
         hours = 0
@@ -117,6 +159,7 @@ class stamp_times:
                     "in morning" : h_morning / 60,
                     "on next day" : h_next_day / 60}
     def get_hours(self):
+        """Indicates the hours worked as hours"""
         last = -1
         hours = 0
 
@@ -131,6 +174,11 @@ class stamp_times:
                 last = cur
         return hours / 60
     def times_csv(self, sep=";"):
+        """Print the time list in csv format
+        Argument:
+        sep -- the separator for the csv output (default ';')
+        Return: string
+        """
         string = ""
         times = self.times[::-1]
         while times:
@@ -154,7 +202,12 @@ class stamp_times:
         return string
 
 class stamp_day(stamp_times):
+    """Add the date to the list of time stamps"""
     def __init__(self, date):
+        """
+        Arguments:
+        date -- the date as `datetime.date`
+        """
         super().__init__()
         self.date = date
         self.sunday = date.weekday() == 6
@@ -166,7 +219,12 @@ class stamp_day(stamp_times):
         return "{}: {}".format(self.date.strftime("%a, %d. %b. %Y"), super().__str__())
 
 class stamp_hours(stamp_day):
+    """Time stamps for a day"""
     def __init__(self, date):
+        """
+        Arguments:
+        date -- the date as `datetime.date`
+        """
         super().__init__(date)
         self.hours       = 0
         self.evening     = 0
@@ -176,9 +234,15 @@ class stamp_hours(stamp_day):
         return "{}: {:5.2f}".format(super().__str__(), self.get_hours())
 
 class list:
+    """A list of time stamps grouped by day"""
     def __init__(self):
         self.list = []
     def append(self, date_time, stype):
+        """Add new element to the list
+        Arguments:
+        date_time -- the date and time of a stamp as a `datetime.time` object
+        stype     -- the type of the stamp as `enum_stamp_type`
+        """
         for e in self.list:
             if e.date == date_time.date():
                 e.append(date_time.time(), stype)
@@ -191,6 +255,11 @@ class list:
                 tmp.append(date_time.time(), stype)
                 self.list.append(tmp)
     def calc_hours(self):
+        """Calculate some informations per day
+        - hours in the evening between 20 o'clock and 24 o'clock
+        - hours in the night between 23 o'clock and 6 o'clock if this are 2 hours and more
+        - hours in on sun- and holidays
+        """
         evening_data = self.list[0].get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
         day_data     = self.list[0].get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
         night_data   = self.list[0].get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
@@ -226,6 +295,11 @@ class list:
             e.night       = night
             e.sun_holiday = sun_holiday
     def output(self, month=-1, year=None):
+        """Print a nice of the data
+        Arguments:
+        month -- the month for the output if '-1' output all (default -1)
+        year  -- the year for the output (default None)
+        """
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0
@@ -244,6 +318,12 @@ class list:
                 sum_sun_holiday += e.sun_holiday
         print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
     def csv(self, month=-1, year=None, sep=";"):
+        """Print the data in csv format
+        Arguments:
+        month -- the month for the output if '-1' output all (default -1)
+        year  -- the year for the output (default None)
+        sep   -- the separator (default ';')
+        """
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0
@@ -262,4 +342,5 @@ class list:
                 sum_sun_holiday += e.sun_holiday
         print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
     def days(self, m, y):
+        """Alias for output()"""
         self.output(m, y)

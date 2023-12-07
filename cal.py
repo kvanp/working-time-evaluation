@@ -1,10 +1,15 @@
-""" Calendar Informations
-"""
+"""Calendar Informations"""
 
 import datetime
 
 class holiday:
+    """Holidays of a year"""
     def __init__(self, year, federal_state="BW"):
+        """
+        Arguments:
+        year          -- the year
+        federal_state -- the federal state (default "BW")(future use)
+        """
         fixed = {
             datetime.date(year,  1,  1) : "Neujahr"                  ,
             datetime.date(year,  1,  6) : "Heilige drei Könige"      ,
@@ -43,18 +48,30 @@ class holiday:
         self.days = fixed
         self.days.update(floating)
     def is_holiday(self, date):
+        """
+        True is the `datetime.date` or datetime.datetime` object on a
+        holiday
+        """
         return date in self.days.keys()
 
 class month:
+    """Define a month to get his informations"""
     def __init__(self, year, month):
+        """
+        Arguments:
+        year  -- the year as integer
+        month -- the month as integer
+        """
         self.month = month
         self.year = year
         self.creat_weekdays()
     def days(self):
+        """Return number of days in the month"""
         if self.month >= 12:
             return (datetime.date(self.year + 1, 1, 1) - datetime.timedelta(days=1)).day
         return (datetime.date(self.year, self.month + 1, 1) - datetime.timedelta(days=1)).day
     def creat_weekdays(self):
+        """Count the days per weekday in the month"""
         self.weekdays = {}
         for d in range(1, self.days() + 1):
             day = datetime.date(self.year, self.month, d)

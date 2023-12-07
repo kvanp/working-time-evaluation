@@ -3,10 +3,12 @@
 from os import path
 from argparse import ArgumentParser
 
+import version
 import load_working_log
 import worktime
 
 parser = ArgumentParser(description = "Working time evaluation")
+parser.add_argument("-V", "--version" , action="version", version=str(version.version))
 parser.add_argument("-t", "--type" , default="log", help="Input type (log)")
 parser.add_argument("-y", "--year" , type=int   , help="Year")
 parser.add_argument("-m", "--month", type=int, default=-1 , help="Month")

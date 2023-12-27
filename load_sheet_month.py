@@ -1,7 +1,7 @@
 """Load worktimes from a Excel sheet"""
 
-import worktime
 from openpyxl import load_workbook
+import worktime
 
 class table:
     """List of worktime entrys from .xlsx file"""
@@ -14,26 +14,35 @@ class table:
     }
 
     def load(self, filename):
-        """Create a new raw list
+        """Load a Table from a Excel sheet
 
         Arguments:
         file_ -- path/filename to the logfile
+
+        Return: List
         """
         wb = load_workbook(filename=filename)
         sheet = wb[wb.sheetnames[0]]
         offset = 5
         content = []
+
         while sheet.cell(offset, 1).value:
             line = {}
+
             for k,v in self.columns.items():
                 val = sheet.cell(offset, v).value
+
                 if val:
                     line[k] = val
+
             if line:
                 content.append(line)
+
             offset += 1
+
             if offset > sheet.max_row:
                 break
+
         return content
 
 class list(worktime.raw_list):
@@ -54,8 +63,26 @@ class list(worktime.raw_list):
         self.list += table().load(filename)
 
     def convert(self):
-        """Convert the raw list to the worktime list type"""
-        for l in self.list:
-            print(l)
-        return worktime.list()
+        """Convert the raw list to the worktime list type
+
+        Return: worktime.list()
+        """
+        working_time_list = worktime.list()
+
+        for entry in self.list:
+            date = entry["date"]
+            if "start" in entry:
+                working_time_list.append(worktime.datetime.datetime.combine(date.date(), entry["start"]),
+                                         worktime.enum_stamp_type.start_of_work)
+            if "break start" in entry:
+                working_time_list.append(worktime.datetime.datetime.combine(date.date(), entry["break start"]),
+                                         worktime.enum_stamp_type.start_of_work_break)
+            if "break end" in entry:
+                working_time_list.append(worktime.datetime.datetime.combine(date.date(), entry["break end"]),
+                                         worktime.enum_stamp_type.end_of_work_break)
+            if "end" in entry:
+                working_time_list.append(worktime.datetime.datetime.combine(date.date(), entry["end"]),
+                                         worktime.enum_stamp_type.end_of_work)
+
+        return working_time_list
 

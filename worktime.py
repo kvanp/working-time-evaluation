@@ -192,6 +192,8 @@ class stamp_times:
     def __str__(self):
         string = ""
         times = self.times[::-1]
+        if not times:
+            string = "                         "
         while times:
             if len(times) == 2:
                 string += "{}       -       {}".format(times.pop(), times.pop())
@@ -232,7 +234,7 @@ class stamp_hours(stamp_day):
         self.sun_holiday  = 0
         self.target_hours = 0
     def __str__(self):
-        return "{}: {:7.2f}".format(super().__str__(), self.get_hours())
+        return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.target_hours, self.get_hours())
 
 class raw_list:
     """A empty skeleton for the input types"""
@@ -267,15 +269,29 @@ class list:
         """
         for e in self.list:
             if e.date == date_time.date():
-                e.append(date_time.time(), stype)
+                if not e.times and (stype == enum_stamp_type.start_of_work_break or stype == enum_stamp_type.end_of_work):
+                    self.append(date_time - datetime.timedelta(days=1), stype)
+                else:
+                    e.append(date_time.time(), stype)
+
                 break
         else:
-            if stype == enum_stamp_type.start_of_work_break or stype == enum_stamp_type.end_of_work:
-                self.append(date_time - datetime.timedelta(days=1), stype)
-            else:
-                tmp = stamp_hours(date_time.date())
-                tmp.append(date_time.time(), stype)
-                self.list.append(tmp)
+            month = cal.month(date_time.year, date_time.month)
+            list_ = []
+
+            for d in range(1, month.days()+1):
+                day = stamp_hours(datetime.date(date_time.year, date_time.month, d))
+
+                if day.holiday:
+                    day.target_hours = self.should[6]
+                else:
+                    day.target_hours = self.should[day.date.weekday()]
+
+                list_.append(day)
+
+            self.list += list_
+            self.append(date_time, stype)
+
     def calc_hours(self):
         """Calculate some informations per day
         - hours in the evening between 20 o'clock and 24 o'clock
@@ -316,10 +332,6 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
-            if e.holiday:
-                e.target_hours = self.should[6]
-            else:
-                e.target_hours = self.should[e.date.weekday()]
     def total(self, format_=None):
         """Output of totals"""
 
@@ -365,7 +377,7 @@ class output:
 
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
-                print(e, " {:6.2f}| (E {:6.2f}; N {:6.2f}; S/H {6.2f})".format(e.target_hours, e.evening, e.night, e.sun_holiday))
+                print(e, "| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(e.evening, e.night, e.sun_holiday))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night

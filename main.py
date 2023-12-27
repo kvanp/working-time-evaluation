@@ -77,7 +77,7 @@ if args.should:
     list_ = []
     for i in args.should.split(','):
         list_.append(int(i))
-    workdata.should = list_
+    workdata.new_shoulds(list_)
 
 if args.output_type:
     output_type.objs[args.output_type](workdata, args.month, args.year)

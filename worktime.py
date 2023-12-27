@@ -235,7 +235,7 @@ class stamp_hours(stamp_day):
         self.target_hours = 0
         self.overtime     = 0
     def __str__(self):
-        return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.target_hours, self.get_hours())
+        return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.get_hours(), self.target_hours)
 
 class raw_list:
     """A empty skeleton for the input types"""
@@ -292,6 +292,15 @@ class list:
 
             self.list += list_
             self.append(date_time, stype)
+
+    def new_shoulds(self, _list):
+        self.should = _list
+
+        for e in self.list:
+            if e.holiday:
+                e.target_hours = self.should[6]
+            else:
+                e.target_hours = self.should[e.date.weekday()]
 
     def calc_hours(self):
         """Calculate some informations per day
@@ -390,7 +399,7 @@ class output:
                 sum_sun_holiday  += e.sun_holiday
                 sum_target_hours += e.target_hours
         print("Total                                          {:7.2f} {:7.2f}         | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
-            sum_target_hours, sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
+            sum_hours, sum_target_hours, sum_evening, sum_nigth, sum_sun_holiday))
     text = classmethod(text)
 
     def csv(self, cls, month=-1, year=None, sep=";"):

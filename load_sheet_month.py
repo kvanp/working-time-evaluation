@@ -32,6 +32,10 @@ class table:
             for k,v in self.columns.items():
                 val = sheet.cell(offset, v).value
 
+                # At 0 o'clock we get the wrong data type
+                if not k == "date" and isinstance(val, worktime.datetime.datetime):
+                    val = val.time()
+
                 if val:
                     line[k] = val
 

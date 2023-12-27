@@ -226,10 +226,11 @@ class stamp_hours(stamp_day):
         date -- the date as `datetime.date`
         """
         super().__init__(date)
-        self.hours       = 0
-        self.evening     = 0
-        self.night       = 0
-        self.sun_holiday = 0
+        self.hours        = 0
+        self.evening      = 0
+        self.night        = 0
+        self.sun_holiday  = 0
+        self.target_hours = 0
     def __str__(self):
         return "{}: {:7.2f}".format(super().__str__(), self.get_hours())
 
@@ -257,6 +258,7 @@ class list:
     """A list of time stamps grouped by day"""
     def __init__(self):
         self.list = []
+        self.should = [8,8,8,8,8,0,0]
     def append(self, date_time, stype):
         """Add new element to the list
         Arguments:
@@ -314,6 +316,10 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
+            if e.holiday:
+                e.target_hours = self.should[6]
+            else:
+                e.target_hours = self.should[e.date.weekday()]
     def total(self, format_=None):
         """Output of totals"""
 
@@ -359,7 +365,7 @@ class output:
 
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
-                print(e, "| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(e.evening, e.night, e.sun_holiday))
+                print(e, " {:6.2f}| (E {:6.2f}; N {:6.2f}; S/H {6.2f})".format(e.target_hours, e.evening, e.night, e.sun_holiday))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night

@@ -47,6 +47,7 @@ parser.add_argument("-o", "--output-type" , help=str(output_type()))
 parser.add_argument("-d", "--data-type" , help=str(data_type()))
 parser.add_argument("-y", "--year" , type=int   , help="Year")
 parser.add_argument("-m", "--month", type=int, default=-1 , help="Month")
+parser.add_argument("-s", "--should", help="Comma-separated list of target hours per weekday. Starting with Monday. (Default '8,8,8,8,8,8,0,0')")
 parser.add_argument("file", metavar="FILENAME", nargs="+", help="Working time file")
 args = parser.parse_args()
 
@@ -72,6 +73,12 @@ for f in args.file[1:]:
     data.append(f)
 
 workdata = data.convert()
+if args.should:
+    list_ = []
+    for i in args.should.split(','):
+        list_.append(int(i))
+    workdata.should = list_
+
 if args.output_type:
     output_type.objs[args.output_type](workdata, args.month, args.year)
 if args.data_type:

@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 
 import version
 import load_working_log
+import load_sheet_month
 import worktime
 
 class input_type:
@@ -15,7 +16,7 @@ class input_type:
     objs = {
         "log"  : load_working_log.list,
 #        "org"  : worktime.raw_list,     # Dummy for future use
-        "xlsx" : worktime.raw_list,     # Dummy for future use
+        "xlsx" : load_sheet_month.list,
     }
     def __str__(self):
         return "Input type ({})".format(", ".join(self.objs.keys()))

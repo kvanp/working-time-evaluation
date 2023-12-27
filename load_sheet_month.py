@@ -25,8 +25,9 @@ class table:
         sheet = wb[wb.sheetnames[0]]
         offset = 5
         content = []
+        date = None
 
-        while sheet.cell(offset, 1).value:
+        while offset < (sheet.max_row - 2):
             line = {}
 
             for k,v in self.columns.items():
@@ -38,17 +39,21 @@ class table:
                         val = val.time()
                     elif type(val) == str:
                         val = worktime.datetime.datetime.strptime(val, "%H:%M").time()
+                else:
+                    if val:
+                        date = val
 
                 if val:
                     line[k] = val
 
-            if line:
+            if date and not "date" in line:
+                line["date"] = date
+
+            if line and "start" in line and "end" in line:
+                print(line)
                 content.append(line)
 
             offset += 1
-
-            if offset > sheet.max_row:
-                break
 
         return content
 

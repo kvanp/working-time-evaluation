@@ -233,6 +233,26 @@ class stamp_hours(stamp_day):
     def __str__(self):
         return "{}: {:5.2f}".format(super().__str__(), self.get_hours())
 
+class raw_list:
+    """A empty skeleton for the input types"""
+    def create(self, file_):
+        """Create a new raw list
+
+        Arguments:
+        file_ -- path/filename to the logfile
+        """
+        pass
+    def append(self, file_):
+        """Appand entrys to the raw list
+
+        Arguments:
+        file_ -- path/filename to the logfile
+        """
+        pass
+    def convert(self):
+        """Convert the raw list to the worktime list type"""
+        return list()
+
 class list:
     """A list of time stamps grouped by day"""
     def __init__(self):
@@ -300,6 +320,9 @@ class list:
         month -- the month for the output if '-1' output all (default -1)
         year  -- the year for the output (default None)
         """
+        if not self.list:
+            return
+
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0
@@ -324,6 +347,9 @@ class list:
         year  -- the year for the output (default None)
         sep   -- the separator (default ';')
         """
+        if not self.list:
+            return
+
         self.calc_hours()
         sum_hours       = 0
         sum_evening     = 0

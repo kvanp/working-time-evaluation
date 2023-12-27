@@ -109,46 +109,43 @@ def loader(filename):
     fobj.close()
     return data
 
-class raw_list:
-    """Store the lines read in"""
-    def __init__(self, filename):
-        """
+class list(worktime.raw_list):
+    """Raw list of worktime entrys from logfile"""
+    def create(self, file_):
+        """Create a new raw list
+
         Arguments:
-        filename -- path/filename to the logfile
+        file_ -- path/filename to the logfile
         """
-        self.list = loader(filename)
-    def append(self, date_time, place, subject, comment):
-        """Add a new line to the list"""
-        self.list.append(dataset(date_time, place, subject, comment))
-    def output(self):
-        """Print the storge"""
-        for d in self.list:
-            d.show()
+        self.list = loader(file_)
+    def append(self, file_):
+        """Appand entrys to the raw list
 
-def convert_raw_to_worktime(raw_list):
-    """convert the log entrys to the worktime data struct
+        Arguments:
+        file_ -- path/filename to the logfile
+        """
+        self.list += loader(file_)
+    def convert(self):
+        """Convert the log entrys to the worktime data struct
 
-    Arguments:
-    raw_list --- list whit dataset objects
+        Return: `worktime.list` object
+        """
+        start = False
+        pause = False
+        working_time_list = worktime.list()
 
-    Return: `worktime.list` object
-    """
-    start = False
-    pause = False
-    working_time_list = worktime.list()
+        for entry in self.list:
+            if not start and not pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
+                start = True
+                working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work)
+            elif start and not pause and entry.is_pause():
+                pause = True
+                working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work_break)
+            elif start and pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
+                pause = False
+                working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work_break)
+            elif start and not pause and entry.is_end():
+                start = False
+                working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work)
 
-    for entry in raw_list.list:
-        if not start and not pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
-            start = True
-            working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work)
-        elif start and not pause and entry.is_pause():
-            pause = True
-            working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work_break)
-        elif start and pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
-            pause = False
-            working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work_break)
-        elif start and not pause and entry.is_end():
-            start = False
-            working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work)
-
-    return working_time_list
+        return working_time_list

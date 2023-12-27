@@ -314,62 +314,6 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
-    def output(self, month=-1, year=None):
-        """Print a nice of the data
-        Arguments:
-        month -- the month for the output if '-1' output all (default -1)
-        year  -- the year for the output (default None)
-        """
-        if not self.list:
-            return
-
-        self.calc_hours()
-        sum_hours       = 0
-        sum_evening     = 0
-        sum_nigth       = 0
-        sum_sun_holiday = 0
-
-        if year == None:
-            year = datetime.datetime.now().year
-
-        for e in self.list:
-            if month == -1 or e.date.year == year and e.date.month == month:
-                print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday))
-                sum_hours       += e.hours
-                sum_evening     += e.evening
-                sum_nigth       += e.night
-                sum_sun_holiday += e.sun_holiday
-        print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
-    def csv(self, month=-1, year=None, sep=";"):
-        """Print the data in csv format
-        Arguments:
-        month -- the month for the output if '-1' output all (default -1)
-        year  -- the year for the output (default None)
-        sep   -- the separator (default ';')
-        """
-        if not self.list:
-            return
-
-        self.calc_hours()
-        sum_hours       = 0
-        sum_evening     = 0
-        sum_nigth       = 0
-        sum_sun_holiday = 0
-
-        if year == None:
-            year = datetime.datetime.now().year
-
-        for e in self.list:
-            if month == -1 or e.date.year == year and e.date.month == month:
-                print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(A {:5.2f}| N {:5.2f}| S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday)]))
-                sum_hours       += e.hours
-                sum_evening     += e.evening
-                sum_nigth       += e.night
-                sum_sun_holiday += e.sun_holiday
-        print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
-    def days(self, m, y):
-        """Alias for output()"""
-        self.output(m, y)
     def total(self, format_=None):
         """Output of totals"""
 
@@ -392,9 +336,77 @@ class list:
 
         for k,v in sums.items():
             print("{} {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
-    def months(self):
-        """Output of monthly totals"""
-        self.total("%Y %b")
-    def years(self):
+
+class output:
+    """Some output variants"""
+    def text(self, cls, month=-1, year=None):
+        """Print a nice of the data
+        Arguments:
+        month -- the month for the output if '-1' output all (default -1)
+        year  -- the year for the output (default None)
+        """
+        if not cls.list:
+            return
+
+        cls.calc_hours()
+        sum_hours       = 0
+        sum_evening     = 0
+        sum_nigth       = 0
+        sum_sun_holiday = 0
+
+        if year == None:
+            year = datetime.datetime.now().year
+
+        for e in cls.list:
+            if month == -1 or e.date.year == year and e.date.month == month:
+                print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday))
+                sum_hours       += e.hours
+                sum_evening     += e.evening
+                sum_nigth       += e.night
+                sum_sun_holiday += e.sun_holiday
+        print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
+    text = classmethod(text)
+
+    def csv(self, cls, month=-1, year=None, sep=";"):
+        """Print the data in csv format
+        Arguments:
+        month -- the month for the output if '-1' output all (default -1)
+        year  -- the year for the output (default None)
+        sep   -- the separator (default ';')
+        """
+        if not cls.list:
+            return
+
+        cls.calc_hours()
+        sum_hours       = 0
+        sum_evening     = 0
+        sum_nigth       = 0
+        sum_sun_holiday = 0
+
+        if year == None:
+            year = datetime.datetime.now().year
+
+        for e in cls.list:
+            if month == -1 or e.date.year == year and e.date.month == month:
+                print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(A {:5.2f}| N {:5.2f}| S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday)]))
+                sum_hours       += e.hours
+                sum_evening     += e.evening
+                sum_nigth       += e.night
+                sum_sun_holiday += e.sun_holiday
+        print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
+    csv = classmethod(csv)
+
+    def total(self, cls):
+        """Output of totals"""
+        cls.total()
+    total = classmethod(total)
+
+    def year(self, cls):
         """Output of yearly totals"""
-        self.total("%Y")
+        cls.total("%Y")
+    year = classmethod(year)
+
+    def month(self, cls):
+        """Output of monthly totals"""
+        cls.total("%Y %b")
+    month = classmethod(month)

@@ -47,7 +47,6 @@ class dataset:
         if self.place.upper() == "PRIVAT" or self.subject.upper() == "PRIVAT" or (self.comment and self.comment[0] == '!'):
             return True
         return False
-        pass
 
 class fix_line:
     """Defines the fixed columns and returns the individual attributes"""
@@ -138,13 +137,13 @@ class list(worktime.raw_list):
             if not start and not pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
                 start = True
                 working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work)
-            elif start and not pause and entry.is_pause():
+            elif start and not pause and (entry.is_pause() or entry.is_privat()):
                 pause = True
                 working_time_list.append(entry.date_time, worktime.enum_stamp_type.start_of_work_break)
             elif start and pause and not entry.is_end() and not entry.is_pause() and not entry.is_privat():
                 pause = False
                 working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work_break)
-            elif start and not pause and entry.is_end():
+            elif start and not pause and (entry.is_end() or entry.is_privat()):
                 start = False
                 working_time_list.append(entry.date_time, worktime.enum_stamp_type.end_of_work)
 

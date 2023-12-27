@@ -233,6 +233,7 @@ class stamp_hours(stamp_day):
         self.night        = 0
         self.sun_holiday  = 0
         self.target_hours = 0
+        self.overtime     = 0
     def __str__(self):
         return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.target_hours, self.get_hours())
 
@@ -332,6 +333,7 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
+            e.overtime    = e.hours - e.target_hours
     def total(self, format_=None):
         """Output of totals"""
 
@@ -367,22 +369,28 @@ class output:
             return
 
         cls.calc_hours()
-        sum_hours       = 0
-        sum_evening     = 0
-        sum_nigth       = 0
-        sum_sun_holiday = 0
+        sum_hours        = 0
+        sum_evening      = 0
+        sum_nigth        = 0
+        sum_sun_holiday  = 0
+        sum_target_hours = 0
+        sum_overtime     = 0
 
         if year == None:
             year = datetime.datetime.now().year
 
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
-                print(e, "| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(e.evening, e.night, e.sun_holiday))
-                sum_hours       += e.hours
-                sum_evening     += e.evening
-                sum_nigth       += e.night
-                sum_sun_holiday += e.sun_holiday
-        print("Total                                          {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
+                sum_overtime += e.overtime
+                print(e, " {:7.2f}| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
+                    sum_overtime, e.evening, e.night, e.sun_holiday))
+                sum_hours        += e.hours
+                sum_evening      += e.evening
+                sum_nigth        += e.night
+                sum_sun_holiday  += e.sun_holiday
+                sum_target_hours += e.target_hours
+        print("Total                                          {:7.2f} {:7.2f}         | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
+            sum_target_hours, sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
     text = classmethod(text)
 
     def csv(self, cls, month=-1, year=None, sep=";"):

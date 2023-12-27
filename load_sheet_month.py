@@ -50,7 +50,6 @@ class table:
                 line["date"] = date
 
             if line and "start" in line and "end" in line:
-                print(line)
                 content.append(line)
 
             offset += 1

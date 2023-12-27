@@ -8,6 +8,10 @@ import load_working_log
 import worktime
 
 class input_type:
+    """Class array for the input types
+
+    The skeleton is defined under 'worktime.raw_list'.
+    """
     objs = {
         "log"  : load_working_log.list,
 #        "org"  : worktime.raw_list,     # Dummy for future use

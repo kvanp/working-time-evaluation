@@ -33,8 +33,11 @@ class table:
                 val = sheet.cell(offset, v).value
 
                 # At 0 o'clock we get the wrong data type
-                if not k == "date" and isinstance(val, worktime.datetime.datetime):
-                    val = val.time()
+                if not k == "date":
+                    if isinstance(val, worktime.datetime.datetime):
+                        val = val.time()
+                    elif type(val) == str:
+                        val = worktime.datetime.datetime.strptime(val, "%H:%M").time()
 
                 if val:
                     line[k] = val

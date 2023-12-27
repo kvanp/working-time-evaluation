@@ -370,14 +370,17 @@ class list:
     def days(self, m, y):
         """Alias for output()"""
         self.output(m, y)
-    def months(self):
-        """Output of monthly totals"""
+    def total(self, format_=None):
+        """Output of totals"""
 
         self.calc_hours()
         sums = {}
 
         for e in self.list:
-            idx = e.date.strftime("%Y %b")
+            if format_:
+                idx = e.date.strftime(format_)
+            else:
+                idx = "Total"
 
             if not idx in sums.keys():
                 sums[idx] = {"hours" : 0, "evening" : 0, "night" : 0, "sun_holiday" : 0}
@@ -389,3 +392,9 @@ class list:
 
         for k,v in sums.items():
             print("{} {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
+    def months(self):
+        """Output of monthly totals"""
+        self.total("%Y %b")
+    def years(self):
+        """Output of yearly totals"""
+        self.total("%Y")

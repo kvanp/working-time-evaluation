@@ -231,7 +231,7 @@ class stamp_hours(stamp_day):
         self.night       = 0
         self.sun_holiday = 0
     def __str__(self):
-        return "{}: {:5.2f}".format(super().__str__(), self.get_hours())
+        return "{}: {:7.2f}".format(super().__str__(), self.get_hours())
 
 class raw_list:
     """A empty skeleton for the input types"""
@@ -335,7 +335,7 @@ class list:
             sums[idx]["sun_holiday"] += e.sun_holiday
 
         for k,v in sums.items():
-            print("{} {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
+            print("{} {:7.2f} | (E{:6.2f}; N{:6.2f}; S/H{:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
 
 class output:
     """Some output variants"""
@@ -359,12 +359,12 @@ class output:
 
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
-                print(e, "| (E {:5.2f}; N {:5.2f}; S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday))
+                print(e, "| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(e.evening, e.night, e.sun_holiday))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night
                 sum_sun_holiday += e.sun_holiday
-        print("                                              {:6.2f} | (E{:6.2f}; N{:6.2f}; S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
+        print("Total                                          {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday))
     text = classmethod(text)
 
     def csv(self, cls, month=-1, year=None, sep=";"):
@@ -388,12 +388,12 @@ class output:
 
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
-                print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(A {:5.2f}| N {:5.2f}| S/F {:5.2f})".format(e.evening, e.night, e.sun_holiday)]))
+                print(sep.join([e.date.strftime("%d.%m.%Y"), e.times_csv(sep), "{:.2f}".format(e.hours), "(E {:.2f}| N {:.2f}| S/H {:.2f})".format(e.evening, e.night, e.sun_holiday)]))
                 sum_hours       += e.hours
                 sum_evening     += e.evening
                 sum_nigth       += e.night
                 sum_sun_holiday += e.sun_holiday
-        print("{s}{s}{s}{s}{s}{s}{:.2f}{s}(A{:6.2f}| N{:6.2f}| S/F{:6.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
+        print("Total{s}{s}{s}{s}{s}{s}{:.2f}{s}(E {:.2f}| N {:.2f}| S/H {:.2f})".format(sum_hours, sum_evening, sum_nigth, sum_sun_holiday, s=sep))
     csv = classmethod(csv)
 
     def total(self, cls):

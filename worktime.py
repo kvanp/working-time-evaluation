@@ -282,25 +282,28 @@ class list:
 
             for d in range(1, month.days()+1):
                 day = stamp_hours(datetime.date(date_time.year, date_time.month, d))
-
-                if day.holiday:
-                    day.target_hours = self.should[6]
-                else:
-                    day.target_hours = self.should[day.date.weekday()]
-
+                self.set_should(day)
                 list_.append(day)
 
             self.list += list_
             self.append(date_time, stype)
 
+    def set_should(self, day):
+        should = self.should[day.date.weekday()]
+
+        if day.holiday:
+            should = self.should[6]
+
+        if should < 0 or should > 23 or sum(self.should) == 0:
+            should = -1
+
+        day.target_hours = should
+
     def new_shoulds(self, _list):
         self.should = _list
 
         for e in self.list:
-            if e.holiday:
-                e.target_hours = self.should[6]
-            else:
-                e.target_hours = self.should[e.date.weekday()]
+            self.set_should(e)
 
     def calc_hours(self):
         """Calculate some informations per day
@@ -342,7 +345,12 @@ class list:
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
+
+            if e.target_hours == -1:
+                e.target_hours = e.hours
+
             e.overtime    = e.hours - e.target_hours
+
     def total(self, format_=None):
         """Output of totals"""
 

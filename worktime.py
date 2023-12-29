@@ -377,15 +377,23 @@ class list:
                 sun_holiday = day
 
             last_date = e.date
-            e.hours       = e.get_hours()
+            hours       = e.get_hours()
+            e.hours     = hours
+
+            if e.target_hours == -1:
+                e.target_hours = hours
+
+            if hours == 0:
+                for k in ["vacation", "ill"]:
+                    if e.day_meta[k]:
+                        print(hours, e.target_hours)
+                        hours = e.target_hours
+                        break
+
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday
-
-            if e.target_hours == -1:
-                e.target_hours = e.hours
-
-            e.overtime    = e.hours - e.target_hours
+            e.overtime    = hours - e.target_hours
 
     def total(self, format_=None):
         """Output of totals"""

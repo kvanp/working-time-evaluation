@@ -364,7 +364,7 @@ class list:
             sums[idx]["sun_holiday"] += e.sun_holiday
 
         for k,v in sums.items():
-            print("{} {:7.2f} | (E{:6.2f}; N{:6.2f}; S/H{:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
+            print("{:8} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
 
 class output:
     """Some output variants"""
@@ -439,9 +439,11 @@ class output:
     def year(self, cls):
         """Output of yearly totals"""
         cls.total("%Y")
+        cls.total()
     year = classmethod(year)
 
     def month(self, cls):
         """Output of monthly totals"""
         cls.total("%Y %b")
+        cls.total()
     month = classmethod(month)

@@ -195,14 +195,14 @@ class stamp_times:
 
         if not times:
             string = "                         "
-            if self.day_meta["ill"]:
+            if self.holiday:
+                string = "Holiday                  "
+            elif self.day_meta["ill"]:
                 string = "Ill                      "
             elif self.day_meta["vacation"]:
                 string = "Vacation                 "
             elif self.day_meta["unpaid_vacation"]:
                 string = "Unpaid Vacation          "
-            elif self.holiday:
-                string = "Holiday                  "
 
         while times:
             if len(times) == 2:
@@ -335,7 +335,6 @@ class list:
 
                 if d.date >= start and d.date <= end:
                     d.day_meta[e[0]] = True
-                    break
 
     def set_should(self, day):
         should = self.should[day.date.weekday()]

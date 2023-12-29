@@ -356,15 +356,25 @@ class list:
                 idx = "Total"
 
             if not idx in sums.keys():
-                sums[idx] = {"hours" : 0, "evening" : 0, "night" : 0, "sun_holiday" : 0}
+                sums[idx] = {
+                    "hours"        : 0,
+                    "evening"      : 0,
+                    "night"        : 0,
+                    "sun_holiday"  : 0,
+                    "target_hours" : 0,
+                    "overtime"     : 0,
+                }
 
-            sums[idx]["hours"]       += e.hours
-            sums[idx]["evening"]     += e.evening
-            sums[idx]["night"]       += e.night
-            sums[idx]["sun_holiday"] += e.sun_holiday
+            sums[idx]["hours"       ] += e.hours
+            sums[idx]["evening"     ] += e.evening
+            sums[idx]["night"       ] += e.night
+            sums[idx]["sun_holiday" ] += e.sun_holiday
+            sums[idx]["target_hours"] += e.target_hours
+            sums[idx]["overtime"    ] += e.overtime
 
         for k,v in sums.items():
-            print("{:8} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(k, v["hours"], v["evening"], v["night"], v["sun_holiday"]))
+            print("{:8} {:7.2f} {:7.2f} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
+                k, v["hours"], v["target_hours"], v["overtime"], v["evening"], v["night"], v["sun_holiday"]))
 
 class output:
     """Some output variants"""
@@ -445,5 +455,6 @@ class output:
     def month(self, cls):
         """Output of monthly totals"""
         cls.total("%Y %b")
+        cls.total("%Y")
         cls.total()
     month = classmethod(month)

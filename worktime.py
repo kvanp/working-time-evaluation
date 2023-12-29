@@ -411,12 +411,18 @@ class list:
 
         self.calc_hours()
         sums = {}
+        year = {}
 
         for e in self.list:
             if format_:
                 idx = e.date.strftime(format_)
             else:
                 idx = "Total"
+
+            if not e.date.strftime("%Y") in year:
+                year[e.date.strftime("%Y")] = {e.date.strftime("%m") : True}
+            else:
+                year[e.date.strftime("%Y")][e.date.strftime("%m")] = True
 
             if not idx in sums.keys():
                 sums[idx] = {
@@ -446,8 +452,33 @@ class list:
                     sums[idx]["ill"            ] += 1
 
         for k,v in sums.items():
+            months = 0
+
+            if k in year:
+                months = len(year[k])
+            elif k == "Total":
+                for y in year:
+                    months += len(year[y])
+
+            annual_vacation = self.meta["annual_vacation"] * months / 12
+            remaining = annual_vacation - v["vacation"]
+            remaining_h = remaining * max(self.should)
+            vacuation_overtime = 0
+
+            if self.meta["remaining_vacation_to_hours"] and k == "Total"  and self.meta["annual_vacation"]:
+                vacuation_overtime = remaining_h
+
             print("{:8} {:7.2f} {:7.2f} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f}) V {:2} I {:2} UV {:2}".format(
-                k, v["hours"], v["target_hours"], v["overtime"], v["evening"], v["night"], v["sun_holiday"], v["vacation"], v["ill"], v["unpaid_vacation"]))
+                k, v["hours"], v["target_hours"], v["overtime"] + vacuation_overtime, v["evening"], v["night"], v["sun_holiday"], v["vacation"], v["ill"], v["unpaid_vacation"]))
+
+            if len(k) == 4 and self.meta["annual_vacation"]:
+                s_hours = ""
+
+                if self.meta["remaining_vacation_to_hours"]:
+                    s_hours =  " are {} hours".format(remaining_h)
+                    s_hours += "\n  Total overtime: {} hours".format(remaining_h + v["overtime"])
+
+                print("  Rest vacation: {} days (from {} days){}".format(remaining, annual_vacation, s_hours))
 
 class output:
     """Some output variants"""

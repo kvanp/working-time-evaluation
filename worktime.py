@@ -386,7 +386,6 @@ class list:
             if hours == 0:
                 for k in ["vacation", "ill"]:
                     if e.day_meta[k]:
-                        print(hours, e.target_hours)
                         hours = e.target_hours
                         break
 
@@ -409,24 +408,34 @@ class list:
 
             if not idx in sums.keys():
                 sums[idx] = {
-                    "hours"        : 0,
-                    "evening"      : 0,
-                    "night"        : 0,
-                    "sun_holiday"  : 0,
-                    "target_hours" : 0,
-                    "overtime"     : 0,
+                    "hours"           : 0,
+                    "evening"         : 0,
+                    "night"           : 0,
+                    "sun_holiday"     : 0,
+                    "target_hours"    : 0,
+                    "overtime"        : 0,
+                    "vacation"        : 0,
+                    "unpaid_vacation" : 0,
+                    "ill"             : 0,
                 }
 
-            sums[idx]["hours"       ] += e.hours
-            sums[idx]["evening"     ] += e.evening
-            sums[idx]["night"       ] += e.night
-            sums[idx]["sun_holiday" ] += e.sun_holiday
-            sums[idx]["target_hours"] += e.target_hours
-            sums[idx]["overtime"    ] += e.overtime
+            sums[idx]["hours"          ] += e.hours
+            sums[idx]["evening"        ] += e.evening
+            sums[idx]["night"          ] += e.night
+            sums[idx]["sun_holiday"    ] += e.sun_holiday
+            sums[idx]["target_hours"   ] += e.target_hours
+            sums[idx]["overtime"       ] += e.overtime
+            if e.target_hours:
+                if e.day_meta["vacation"       ]:
+                    sums[idx]["vacation"       ] += 1
+                if e.day_meta["unpaid_vacation"]:
+                    sums[idx]["unpaid_vacation"] += 1
+                if e.day_meta["ill"            ]:
+                    sums[idx]["ill"            ] += 1
 
         for k,v in sums.items():
-            print("{:8} {:7.2f} {:7.2f} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
-                k, v["hours"], v["target_hours"], v["overtime"], v["evening"], v["night"], v["sun_holiday"]))
+            print("{:8} {:7.2f} {:7.2f} {:7.2f} | (E {:6.2f}; N {:6.2f}; S/H {:6.2f}) V {:2} I {:2} UV {:2}".format(
+                k, v["hours"], v["target_hours"], v["overtime"], v["evening"], v["night"], v["sun_holiday"], v["vacation"], v["ill"], v["unpaid_vacation"]))
 
 class output:
     """Some output variants"""

@@ -8,7 +8,7 @@ class version_class:
     def __init__(self):
         self.major = 0  # Increment, when you make incompatible API changes
         self.minor = 1  # Increment, when you add functionality in a backward compatible manner
-        self.patch = 0  # Increment, when you make backward compatible bug fixes
+        self.patch = 1  # Increment, when you make backward compatible bug fixes
         self.micor = self.patch
     def __str__(self):
         return "{}.{}.{}".format(self.major, self.minor, self.patch)

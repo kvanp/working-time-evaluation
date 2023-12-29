@@ -77,6 +77,11 @@ for f in args.file[1:]:
 
 workdata = data.convert()
 workdata.set_meta({"annual_vacation" : args.annual_vacation, "remaining_vacation_to_hours" : args.remaining_vacation_to_hours})
+#workdata.set_absence([
+#    ["vacation", worktime.datetime.date(2023, 10, 30), worktime.datetime.date(2023, 11, 3)],
+#    ["ill", worktime.datetime.date(2023, 11, 5)],
+#])
+
 if args.should:
     list_ = []
     for i in args.should.split(','):

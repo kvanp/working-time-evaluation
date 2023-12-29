@@ -215,6 +215,11 @@ class stamp_day(stamp_times):
         self.sunday = date.weekday() == 6
         calender = cal.holiday(date.year)
         self.holiday = calender.is_holiday(date)
+        self.day_meta = {
+            "vacation" : False,
+            "unpaid_vacation" : False,
+            "ill" : False,
+        }
     def __lt__(self, other):
         return self.date < other.date
     def __str__(self):
@@ -297,6 +302,27 @@ class list:
 
             self.list += list_
             self.append(date_time, stype)
+
+    def set_absence(self, list_):
+        for e in list_:
+            start = e[1]
+
+            if len(e) == 2:
+                end = start
+            else:
+                end = e[2]
+
+            if start > end:
+                start = end
+                end = e[1]
+
+            for d in self.list:
+                if not e[0] in d.day_meta.keys():
+                    break
+
+                if d.date >= start and d.date <= end:
+                    d.day_meta[e[0]] = True
+                    break
 
     def set_should(self, day):
         should = self.should[day.date.weekday()]

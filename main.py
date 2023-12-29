@@ -48,6 +48,8 @@ parser.add_argument("-d", "--data-type" , help=str(data_type()))
 parser.add_argument("-y", "--year" , type=int   , help="Year")
 parser.add_argument("-m", "--month", type=int, default=-1 , help="Month")
 parser.add_argument("-s", "--should", help="Comma-separated list of target hours per weekday. Starting with Monday. (Default '8,8,8,8,8,8,0,0')")
+parser.add_argument("-a", "--annual-vacation" , type=int, default=0  , help="Annual Vacation")
+parser.add_argument("-r", "--remaining-vacation-to-hours" , action="store_true"   , help="Convert remaining vacation into hours")
 parser.add_argument("file", metavar="FILENAME", nargs="+", help="Working time file")
 args = parser.parse_args()
 
@@ -72,7 +74,9 @@ data.create(args.file[0])
 for f in args.file[1:]:
     data.append(f)
 
+
 workdata = data.convert()
+workdata.set_meta({"annual_vacation" : args.annual_vacation, "remaining_vacation_to_hours" : args.remaining_vacation_to_hours})
 if args.should:
     list_ = []
     for i in args.should.split(','):

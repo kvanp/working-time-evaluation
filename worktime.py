@@ -261,7 +261,17 @@ class list:
     """A list of time stamps grouped by day"""
     def __init__(self):
         self.list = []
-        self.should = [8,8,8,8,8,0,0]
+        self.should = [0,0,0,0,0,0,0]
+        self.meta = {
+            "annual_vacation" : 0,
+            "remaining_vacation_to_hours" : False,
+        }
+
+    def set_meta(self, values):
+        for k,v in values.items():
+            if k in self.meta.keys():
+                self.meta[k] = v
+
     def append(self, date_time, stype):
         """Add new element to the list
         Arguments:

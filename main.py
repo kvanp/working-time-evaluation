@@ -7,6 +7,7 @@ import version
 import load_working_log
 import load_sheet_month
 import worktime
+import read_absence_list
 
 class input_type:
     """Class array for the input types
@@ -48,7 +49,8 @@ parser.add_argument("-d", "--data-type" , help=str(data_type()))
 parser.add_argument("-y", "--year" , type=int   , help="Year")
 parser.add_argument("-m", "--month", type=int, default=-1 , help="Month")
 parser.add_argument("-s", "--should", help="Comma-separated list of target hours per weekday. Starting with Monday. (Default '8,8,8,8,8,8,0,0')")
-parser.add_argument("-a", "--annual-vacation" , type=int, default=0  , help="Annual Vacation")
+parser.add_argument("-a", "--absence" , help="Absence list as CSV")
+parser.add_argument("-v", "--annual-vacation" , type=int, default=0  , help="Annual Vacation")
 parser.add_argument("-r", "--remaining-vacation-to-hours" , action="store_true"   , help="Convert remaining vacation into hours")
 parser.add_argument("file", metavar="FILENAME", nargs="+", help="Working time file")
 args = parser.parse_args()
@@ -77,10 +79,9 @@ for f in args.file[1:]:
 
 workdata = data.convert()
 workdata.set_meta({"annual_vacation" : args.annual_vacation, "remaining_vacation_to_hours" : args.remaining_vacation_to_hours})
-#workdata.set_absence([
-#    ["vacation", worktime.datetime.date(2023, 10, 30), worktime.datetime.date(2023, 11, 3)],
-#    ["ill", worktime.datetime.date(2023, 11, 5)],
-#])
+
+if type(args.absence) is str and path.isfile(args.absence):
+    workdata.set_absence(read_absence_list.read(args.absence))
 
 if args.should:
     list_ = []

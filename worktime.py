@@ -192,15 +192,28 @@ class stamp_times:
     def __str__(self):
         string = ""
         times = self.times[::-1]
+
         if not times:
             string = "                         "
+            if self.day_meta["ill"]:
+                string = "Ill                      "
+            elif self.day_meta["vacation"]:
+                string = "Vacation                 "
+            elif self.day_meta["unpaid_vacation"]:
+                string = "Unpaid Vacation          "
+            elif self.holiday:
+                string = "Holiday                  "
+
         while times:
             if len(times) == 2:
                 string += "{}       -       {}".format(times.pop(), times.pop())
+
             elif len(times) >= 4:
                 string += "{}-{} / {}-{}".format(times.pop(), times.pop(), times.pop(), times.pop())
+
                 if times:
                     string += "\n                    "
+
         return string
 
 class stamp_day(stamp_times):
@@ -449,12 +462,15 @@ class output:
             return
 
         cls.calc_hours()
-        sum_hours        = 0
-        sum_evening      = 0
-        sum_nigth        = 0
-        sum_sun_holiday  = 0
-        sum_target_hours = 0
-        sum_overtime     = 0
+        sum_hours           = 0
+        sum_evening         = 0
+        sum_nigth           = 0
+        sum_sun_holiday     = 0
+        sum_target_hours    = 0
+        sum_overtime        = 0
+        sum_vacation        = 0
+        sum_unpait_vacation = 0
+        sum_ill             = 0
 
         if year == None:
             year = datetime.datetime.now().year
@@ -469,8 +485,15 @@ class output:
                 sum_nigth        += e.night
                 sum_sun_holiday  += e.sun_holiday
                 sum_target_hours += e.target_hours
-        print("Total                                          {:7.2f} {:7.2f}         | (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
-            sum_hours, sum_target_hours, sum_evening, sum_nigth, sum_sun_holiday))
+                if e.target_hours:
+                    if e.day_meta["vacation"       ]:
+                        sum_vacation += 1
+                    if e.day_meta["unpaid_vacation"]:
+                        sum_unpaid_vacation += 1
+                    if e.day_meta["ill"            ]:
+                        sum_ill += 1
+        print("Total                                          {:7.2f} {:7.2f}         | (E {:6.2f}; N {:6.2f}; S/H {:6.2f}) V {:2} I {:2} UV {:2}".format(
+            sum_hours, sum_target_hours, sum_evening, sum_nigth, sum_sun_holiday, sum_vacation, sum_ill, sum_unpait_vacation))
     text = classmethod(text)
 
     def csv(self, cls, month=-1, year=None, sep=";"):

@@ -197,12 +197,13 @@ class stamp_times:
             string = "                         "
             if self.holiday:
                 string = "Holiday                  "
-            elif self.day_meta["ill"]:
-                string = "Ill                      "
-            elif self.day_meta["vacation"]:
-                string = "Vacation                 "
-            elif self.day_meta["unpaid_vacation"]:
-                string = "Unpaid Vacation          "
+            elif self.day_meta["work_day"]:
+                if self.day_meta["ill"]:
+                    string = "Ill                      "
+                elif self.day_meta["vacation"]:
+                    string = "Vacation                 "
+                elif self.day_meta["unpaid_vacation"]:
+                    string = "Unpaid Vacation          "
 
         while times:
             if len(times) == 2:
@@ -229,6 +230,7 @@ class stamp_day(stamp_times):
         calender = cal.holiday(date.year)
         self.holiday = calender.is_holiday(date)
         self.day_meta = {
+            "work_day" : False,
             "vacation" : False,
             "unpaid_vacation" : False,
             "ill" : False,
@@ -253,7 +255,7 @@ class stamp_hours(stamp_day):
         self.target_hours = 0
         self.overtime     = 0
     def __str__(self):
-        return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.get_hours(), self.target_hours)
+        return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.hours, self.target_hours)
 
 class raw_list:
     """A empty skeleton for the input types"""
@@ -345,6 +347,9 @@ class list:
         if should < 0 or should > 23 or sum(self.should) == 0:
             should = -1
 
+        if should > 0:
+            day.day_meta["work_day"] = True
+
         day.target_hours = should
 
     def new_shoulds(self, _list):
@@ -388,9 +393,8 @@ class list:
             if e.sunday or e.holiday:
                 sun_holiday = day
 
-            last_date = e.date
-            hours       = e.get_hours()
-            e.hours     = hours
+            last_date     = e.date
+            hours         = e.get_hours()
 
             if e.target_hours == -1:
                 e.target_hours = hours
@@ -401,6 +405,7 @@ class list:
                         hours = e.target_hours
                         break
 
+            e.hours       = hours
             e.evening     = evening
             e.night       = night
             e.sun_holiday = sun_holiday

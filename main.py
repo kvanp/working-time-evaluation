@@ -9,6 +9,25 @@ import load_sheet_month
 import worktime
 import read_absence_list
 
+dependent_modules = [
+    "openpyxl",
+]
+
+def check_dependencies(module_list):
+    from importlib.util import find_spec as find_module
+
+    not_found = []
+
+    for m in module_list:
+        if not find_module(m):
+            not_found.append(m)
+
+    if not_found:
+        print("ERROR: Modules '{}' must be instelled".format(
+            ", ".join(not_found)))
+        quit()
+check_dependencies(dependent_modules)
+
 class input_type:
     """Class array for the input types
 

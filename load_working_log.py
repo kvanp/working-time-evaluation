@@ -47,6 +47,8 @@ class dataset:
         if self.place.upper() == "PRIVAT" or self.subject.upper() == "PRIVAT" or (self.comment and self.comment[0] == '!'):
             return True
         return False
+    def __lt__(self, other):
+        return self.date_time < other.date_time
 
 class fix_line:
     """Defines the fixed columns and returns the individual attributes"""

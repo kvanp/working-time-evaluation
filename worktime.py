@@ -381,18 +381,22 @@ class list:
                 day     = 0
                 night   = 0
 
+            evening_end  = datetime.time(0,0,0)
             day_data     = e.get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
-            evening_data = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
             night_data   = e.get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
-            day     +=     day_data["hours"]
-            evening += evening_data["hours"]
-            night   +=   night_data["in morning"]
+            day         += day_data["hours"]
+            night       += night_data["in morning"]
 
             if night < 2:
                 night = 0
+            else:
+                evening_end = datetime.time(23,0,0)
+
             if e.sunday or e.holiday:
                 sun_holiday = day
 
+            evening_data  = e.get_hours_in(datetime.time(20,0,0), evening_end)
+            evening      += evening_data["hours"]
             last_date     = e.date
             hours         = e.get_hours()
 

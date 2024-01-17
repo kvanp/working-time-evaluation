@@ -133,7 +133,7 @@ class stamp_times:
             if cur < last:
                 cur += midnight
 
-            if cur < start and last > early_end or last > end:
+            if cur <= start and last >= early_end or last >= end:
                 last = 0
                 continue
 
@@ -145,13 +145,14 @@ class stamp_times:
                     hours += early_end - last
                     h_morning += early_end - last
 
-                if cur < start:
+                if cur <= start:
                     last = 0
                     continue
 
             if last < start:
                 last = start
-            elif cur > end:
+
+            if cur > end:
                 cur = end
 
             if cur > midnight:
@@ -400,7 +401,6 @@ class list:
             elif correction > 0:
                 evening -= correction
                 e.e_correction = True
-
 
             if e.sunday or e.holiday:
                 sun_holiday = day

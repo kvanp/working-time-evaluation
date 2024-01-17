@@ -123,38 +123,44 @@ class stamp_times:
 
         for t in self.times:
             cur = t.get_minute_rounded()
-            if last and t.is_working_hours_end():
-                if cur < last:
-                    cur += 24 * 60
 
-                if cur < start and last > early_end or last > end:
+            if not (last or t.is_working_hours_end()):
+                if t.is_working_hours_start():
+                    last = cur
+
+                continue
+
+            if cur < last:
+                cur += midnight
+
+            if cur < start and last > early_end or last > end:
+                last = 0
+                continue
+
+            if last < early_end:
+                if cur < early_end:
+                    hours += cur - last
+                    h_morning += cur - last
+                else:
+                    hours += early_end - last
+                    h_morning += early_end - last
+
+                if cur < start:
                     last = 0
                     continue
 
-                if last < early_end:
-                    if cur < early_end:
-                        hours += cur - last
-                        h_morning += cur - last
-                    else:
-                        hours += early_end - last
-                        h_morning += early_end - last
+            if last < start:
+                last = start
+            elif cur > end:
+                cur = end
 
-                    if cur < start:
-                        last = 0
-                        continue
+            if cur > midnight:
+                h_next_day += cur - midnight
+                cur = midnight
 
-                if cur > midnight:
-                    h_next_day += cur - midnight
+            hours += cur - last
+            last = 0
 
-                if last < start:
-                    last = start
-                elif cur > end:
-                    cur = end
-
-                hours += cur - last
-                last = 0
-            elif t.is_working_hours_start():
-                last = cur
         return { "hours" : hours / 60,
                     "in morning" : h_morning / 60,
                     "on next day" : h_next_day / 60}
@@ -254,6 +260,7 @@ class stamp_hours(stamp_day):
         self.sun_holiday  = 0
         self.target_hours = 0
         self.overtime     = 0
+        self.e_correction = False
     def __str__(self):
         return "{}: {:7.2f} {:7.2f}".format(super().__str__(), self.hours, self.target_hours)
 
@@ -341,9 +348,6 @@ class list:
     def set_should(self, day):
         should = self.should[day.date.weekday()]
 
-        if day.holiday:
-            should = self.should[6]
-
         if should < 0 or should > 23 or sum(self.should) == 0:
             should = -1
 
@@ -364,10 +368,12 @@ class list:
         - hours in the night between 23 o'clock and 6 o'clock if this are 2 hours and more
         - hours in on sun- and holidays
         """
+        self.list.sort()
         evening_data = self.list[0].get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
         day_data     = self.list[0].get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
         night_data   = self.list[0].get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
         last_date    = self.list[0].date
+        correction   = self.list[0].get_hours_in(datetime.time(23,0,0), datetime.time(0,0,0))["hours"]
 
         for e in self.list:
             sun_holiday = 0
@@ -375,33 +381,38 @@ class list:
             if (e.date - last_date).days == 1:
                 day     =     day_data["on next day"]
                 evening = evening_data["on next day"]
-                night   =   night_data["hours"] - night_data["in morning"]
+                night   =   night_data["on next day"] + night_data["hours"] - night_data["in morning"]
             else:
                 evening = 0
                 day     = 0
                 night   = 0
+                correction = 0
 
-            evening_end  = datetime.time(0,0,0)
-            day_data     = e.get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
-            night_data   = e.get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
-            day         += day_data["hours"]
-            night       += night_data["in morning"]
+            day_data      = e.get_hours_in(datetime.time( 0,0,0), datetime.time(0,0,0))
+            evening_data  = e.get_hours_in(datetime.time(20,0,0), datetime.time(0,0,0))
+            night_data    = e.get_hours_in(datetime.time(23,0,0), datetime.time(6,0,0))
+            day          += day_data["hours"]
+            evening      += evening_data["hours"]
+            night        += night_data["in morning"]
 
             if night < 2:
                 night = 0
-            else:
-                evening_end = datetime.time(23,0,0)
+            elif correction > 0:
+                evening -= correction
+                e.e_correction = True
+
 
             if e.sunday or e.holiday:
                 sun_holiday = day
 
-            evening_data  = e.get_hours_in(datetime.time(20,0,0), evening_end)
-            evening      += evening_data["hours"]
             last_date     = e.date
             hours         = e.get_hours()
+            correction    = e.get_hours_in(datetime.time(23,0,0), datetime.time(0,0,0))["hours"]
 
             if e.target_hours == -1:
                 e.target_hours = hours
+            elif e.holiday:
+                hours += e.target_hours
 
             if hours == 0:
                 for k in ["vacation", "ill"]:
@@ -517,8 +528,15 @@ class output:
         for e in cls.list:
             if month == -1 or e.date.year == year and e.date.month == month:
                 sum_overtime += e.overtime
-                print(e, " {:7.2f}| (E {:6.2f}; N {:6.2f}; S/H {:6.2f})".format(
-                    sum_overtime, e.evening, e.night, e.sun_holiday))
+                stat = ""
+                if e.holiday:
+                    stat += "H"
+                if e.e_correction:
+                    stat += "C"
+                if stat:
+                    stat = " " + stat
+                print(e, " {:7.2f}| (E {:6.2f}; N {:6.2f}; S/H {:6.2f}){}".format(
+                    sum_overtime, e.evening, e.night, e.sun_holiday, stat))
                 sum_hours        += e.hours
                 sum_evening      += e.evening
                 sum_nigth        += e.night

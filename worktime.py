@@ -535,8 +535,8 @@ class output:
                     stat += "C"
                 if stat:
                     stat = " " + stat
-                print(e, " {:7.2f}| (E {:6.2f}; N {:6.2f}; S/H {:6.2f}){}".format(
-                    sum_overtime, e.evening, e.night, e.sun_holiday, stat))
+                print(e, "{:7.2f} {:7.2f}| (E {:6.2f}; N {:6.2f}; S/H {:6.2f}){}".format(
+                    e.overtime, sum_overtime, e.evening, e.night, e.sun_holiday, stat))
                 sum_hours        += e.hours
                 sum_evening      += e.evening
                 sum_nigth        += e.night
@@ -549,8 +549,8 @@ class output:
                         sum_unpaid_vacation += 1
                     if e.day_meta["ill"            ]:
                         sum_ill += 1
-        print("Total                                          {:7.2f} {:7.2f}         | (E {:6.2f}; N {:6.2f}; S/H {:6.2f}) V {:2} I {:2} UV {:2}".format(
-            sum_hours, sum_target_hours, sum_evening, sum_nigth, sum_sun_holiday, sum_vacation, sum_ill, sum_unpait_vacation))
+        print("Total                                          {:7.2f} {:7.2f} {:7.2f}        | (E {:6.2f}; N {:6.2f}; S/H {:6.2f}) V {:2} I {:2} UV {:2}".format(
+            sum_hours, sum_target_hours, sum_overtime, sum_evening, sum_nigth, sum_sun_holiday, sum_vacation, sum_ill, sum_unpait_vacation))
     text = classmethod(text)
 
     def csv(self, cls, month=-1, year=None, sep=";"):

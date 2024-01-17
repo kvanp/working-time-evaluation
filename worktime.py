@@ -289,7 +289,7 @@ class list:
     """A list of time stamps grouped by day"""
     def __init__(self):
         self.list = []
-        self.should = [0,0,0,0,0,0,0]
+        self.should = [-1,-1,-1,-1,-1,-1,-1]
         self.meta = {
             "annual_vacation" : 0,
             "remaining_vacation_to_hours" : False,
@@ -349,16 +349,19 @@ class list:
     def set_should(self, day):
         should = self.should[day.date.weekday()]
 
-        if should < 0 or should > 23 or sum(self.should) == 0:
-            should = -1
-
         if should > 0:
             day.day_meta["work_day"] = True
 
         day.target_hours = should
 
-    def new_shoulds(self, _list):
-        self.should = _list
+    def new_shoulds(self, list_):
+        for i in range(0, len(self.should)):
+            should = list_[i]
+
+            if sum(list_) == 0 or should < 0 or should > 23:
+                should = -1
+
+            self.should[i] = should
 
         for e in self.list:
             self.set_should(e)
@@ -409,7 +412,7 @@ class list:
             hours         = e.get_hours()
             correction    = e.get_hours_in(datetime.time(23,0,0), datetime.time(0,0,0))["hours"]
 
-            if e.target_hours == -1:
+            if self.should[e.date.weekday()] == -1:
                 e.target_hours = hours
             elif e.holiday:
                 hours += e.target_hours

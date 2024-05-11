@@ -4,8 +4,8 @@ start date time, end date time, entry type
 
 import enum
 import datetime
-import utils
-import cal
+import utils.utils as utils
+import process.cal as cal
 
 class enum_stamp_type(enum.Enum):
     """Enum of Entry types"""

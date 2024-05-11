@@ -4,10 +4,10 @@ from os import path
 from argparse import ArgumentParser
 
 import version
-import load_working_log
-import load_sheet_month
+import input.load_working_log as load_working_log
+import input.load_sheet_month as load_sheet_month
 import worktime
-import read_absence_list
+import input.read_absence_list as read_absence_list
 
 dependent_modules = [
     "openpyxl",

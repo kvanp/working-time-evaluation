@@ -6,8 +6,9 @@ from argparse import ArgumentParser
 import version
 import input.load_working_log as load_working_log
 import input.load_sheet_month as load_sheet_month
-import worktime
 import input.read_absence_list as read_absence_list
+import worktime
+import output.output as output
 
 dependent_modules = [
     "openpyxl",
@@ -44,8 +45,8 @@ class input_type:
 class output_type:
     """Class array for the output types"""
     objs = {
-        "text"  : worktime.output.text,
-        "csv"   : worktime.output.csv,
+        "text"  : output.output.text,
+        "csv"   : output.output.csv,
     }
     def __str__(self):
         return "Output type ({})".format(", ".join(self.objs.keys()))
@@ -53,9 +54,9 @@ class output_type:
 class data_type:
     """Class array for the output types"""
     objs = {
-        "total"  : worktime.output.total,
-        "year"   : worktime.output.year,
-        "month"  : worktime.output.month,
+        "total"  : output.output.total,
+        "year"   : output.output.year,
+        "month"  : output.output.month,
     }
     def __str__(self):
         return "Data type ({})".format(", ".join(self.objs.keys()))
